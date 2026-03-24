@@ -49,6 +49,16 @@ const GEMINI_MODELS = [
   "gemini-3-flash-preview",
 ];
 
+// Gemini models to test with reduced thinking
+// Flash accepts MINIMAL, Pro's minimum is LOW
+const GEMINI_NO_THINK_MODELS = [
+  "gemini-3-flash-preview",
+];
+
+const GEMINI_LOW_THINK_MODELS = [
+  "gemini-3.1-pro-preview",
+];
+
 // OpenRouter-only models (no direct API)
 const OPENROUTER_ONLY_MODELS = [
   "moonshotai/kimi-k2.5",
@@ -424,6 +434,226 @@ async function benchGemini(model: string, inputType: string, inputText: string, 
   }
 }
 
+async function benchGeminiNoThink(model: string, inputType: string, inputText: string, runNumber: number): Promise<TimingResult> {
+  const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY!;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`;
+
+  const requestSentAt = performance.now();
+  let firstTokenAt: number | null = null;
+  let outputText = "";
+
+  try {
+    const innerRun = async () => {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents: [{ role: "user", parts: [{ text: getUserPrompt(inputText) }] }],
+          generationConfig: {
+            maxOutputTokens: 2000,
+            thinkingConfig: { thinkingLevel: "MINIMAL" },
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Gemini REST error: ${response.status} ${await response.text()}`);
+      }
+
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+      let outputTokens = 0;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split("\n").filter(line => line.startsWith("data: "));
+
+        for (const line of lines) {
+          try {
+            const parsed = JSON.parse(line.slice(6));
+            const parts = parsed.candidates?.[0]?.content?.parts;
+            if (parts) {
+              for (const part of parts) {
+                if (part.text && !part.thought) {
+                  if (firstTokenAt === null) {
+                    firstTokenAt = performance.now();
+                  }
+                  outputText += part.text;
+                }
+              }
+            }
+            if (parsed.usageMetadata?.candidatesTokenCount) {
+              outputTokens = parsed.usageMetadata.candidatesTokenCount;
+            }
+          } catch {
+            // Skip parse errors
+          }
+        }
+      }
+
+      const lastTokenAt = performance.now();
+      if (outputTokens === 0) outputTokens = Math.ceil(outputText.length / 4);
+      return { lastTokenAt, outputTokens };
+    };
+
+    const { lastTokenAt, outputTokens } = await withTimeout(innerRun(), PER_CALL_TIMEOUT_MS, `${model}/${inputType}`);
+
+    const ttftMs = firstTokenAt ? firstTokenAt - requestSentAt : null;
+    const totalMs = lastTokenAt - requestSentAt;
+    const timeAfterFirst = firstTokenAt ? lastTokenAt - firstTokenAt : null;
+    const tokensPerSecAfterFirst = timeAfterFirst && timeAfterFirst > 0
+      ? (outputTokens / (timeAfterFirst / 1000))
+      : null;
+
+    return {
+      provider: "gemini-no-think",
+      model,
+      inputType,
+      inputChars: inputText.length,
+      outputTokens,
+      requestSentAt,
+      firstTokenAt,
+      lastTokenAt,
+      ttftMs,
+      totalMs,
+      tokensPerSecAfterFirst,
+      runNumber,
+      timestamp: new Date().toISOString(),
+    };
+  } catch (error) {
+    return {
+      provider: "gemini-no-think",
+      model,
+      inputType,
+      inputChars: inputText.length,
+      outputTokens: 0,
+      requestSentAt,
+      firstTokenAt: null,
+      lastTokenAt: performance.now(),
+      ttftMs: null,
+      totalMs: performance.now() - requestSentAt,
+      tokensPerSecAfterFirst: null,
+      runNumber,
+      error: String(error),
+      timestamp: new Date().toISOString(),
+    };
+  }
+}
+
+async function benchGeminiLowThink(model: string, inputType: string, inputText: string, runNumber: number): Promise<TimingResult> {
+  const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY!;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`;
+
+  const requestSentAt = performance.now();
+  let firstTokenAt: number | null = null;
+  let outputText = "";
+
+  try {
+    const innerRun = async () => {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents: [{ role: "user", parts: [{ text: getUserPrompt(inputText) }] }],
+          generationConfig: {
+            maxOutputTokens: 2000,
+            thinkingConfig: { thinkingLevel: "LOW" },
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Gemini REST error: ${response.status} ${await response.text()}`);
+      }
+
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+      let outputTokens = 0;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split("\n").filter(line => line.startsWith("data: "));
+
+        for (const line of lines) {
+          try {
+            const parsed = JSON.parse(line.slice(6));
+            const parts = parsed.candidates?.[0]?.content?.parts;
+            if (parts) {
+              for (const part of parts) {
+                if (part.text && !part.thought) {
+                  if (firstTokenAt === null) {
+                    firstTokenAt = performance.now();
+                  }
+                  outputText += part.text;
+                }
+              }
+            }
+            if (parsed.usageMetadata?.candidatesTokenCount) {
+              outputTokens = parsed.usageMetadata.candidatesTokenCount;
+            }
+          } catch {
+            // Skip parse errors
+          }
+        }
+      }
+
+      const lastTokenAt = performance.now();
+      if (outputTokens === 0) outputTokens = Math.ceil(outputText.length / 4);
+      return { lastTokenAt, outputTokens };
+    };
+
+    const { lastTokenAt, outputTokens } = await withTimeout(innerRun(), PER_CALL_TIMEOUT_MS, `${model}/${inputType}`);
+
+    const ttftMs = firstTokenAt ? firstTokenAt - requestSentAt : null;
+    const totalMs = lastTokenAt - requestSentAt;
+    const timeAfterFirst = firstTokenAt ? lastTokenAt - firstTokenAt : null;
+    const tokensPerSecAfterFirst = timeAfterFirst && timeAfterFirst > 0
+      ? (outputTokens / (timeAfterFirst / 1000))
+      : null;
+
+    return {
+      provider: "gemini-low-think",
+      model,
+      inputType,
+      inputChars: inputText.length,
+      outputTokens,
+      requestSentAt,
+      firstTokenAt,
+      lastTokenAt,
+      ttftMs,
+      totalMs,
+      tokensPerSecAfterFirst,
+      runNumber,
+      timestamp: new Date().toISOString(),
+    };
+  } catch (error) {
+    return {
+      provider: "gemini-low-think",
+      model,
+      inputType,
+      inputChars: inputText.length,
+      outputTokens: 0,
+      requestSentAt,
+      firstTokenAt: null,
+      lastTokenAt: performance.now(),
+      ttftMs: null,
+      totalMs: performance.now() - requestSentAt,
+      tokensPerSecAfterFirst: null,
+      runNumber,
+      error: String(error),
+      timestamp: new Date().toISOString(),
+    };
+  }
+}
+
 async function benchOpenRouter(model: string, inputType: string, inputText: string, runNumber: number): Promise<TimingResult> {
   // Use BYOK key, not provisioning key (which is for creating keys, not API calls)
   const apiKey = process.env.ROBBIE_DEV_OPENROUTER_KEY_FOR_BYOK || process.env.OPENROUTER_API_KEY;
@@ -604,6 +834,14 @@ async function main() {
 
   if (shouldRun("gemini") && process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
     await runBenchmark("Gemini Direct", benchGemini, GEMINI_MODELS, inputTypes);
+  }
+
+  if (shouldRun("gemini-no-think") && process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+    await runBenchmark("Gemini (thinking=MINIMAL)", benchGeminiNoThink, GEMINI_NO_THINK_MODELS, inputTypes);
+  }
+
+  if (shouldRun("gemini-low-think") && process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+    await runBenchmark("Gemini (thinking=LOW)", benchGeminiLowThink, GEMINI_LOW_THINK_MODELS, inputTypes);
   }
 
   // OpenRouter-only models (Kimi, MiniMax, GLM)

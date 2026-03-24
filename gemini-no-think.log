@@ -1,0 +1,107 @@
+════════════════════════════════════════════════════════════════════════════════════════════════════
+LLM API Latency Benchmark
+════════════════════════════════════════════════════════════════════════════════════════════════════
+Input length: 10000 chars
+Input types: bible, random, slop_code
+Runs per model: 5
+Per-call timeout: 180s
+Filtering to: gemini-no-think
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Gemini (thinking=MINIMAL):
+────────────────────────────────────────────────────────────────────────────────────────────────────
+❌ Run 1/5 | gemini-no-think | gemini-3.1-pro-preview       | bible      | TTFT:    N/Ams | Total:   0.2s |     0 tok |  N/A t/s
+   Error: Error: Gemini REST error: 400 {
+  "error": {
+    "code": 400,
+    "message": "Th
+❌ Run 2/5 | gemini-no-think | gemini-3.1-pro-preview       | bible      | TTFT:    N/Ams | Total:   0.2s |     0 tok |  N/A t/s
+   Error: Error: Gemini REST error: 400 {
+  "error": {
+    "code": 400,
+    "message": "Th
+❌ Run 3/5 | gemini-no-think | gemini-3.1-pro-preview       | bible      | TTFT:    N/Ams | Total:   0.1s |     0 tok |  N/A t/s
+   Error: Error: Gemini REST error: 400 {
+  "error": {
+    "code": 400,
+    "message": "Th
+❌ Run 4/5 | gemini-no-think | gemini-3.1-pro-preview       | bible      | TTFT:    N/Ams | Total:   0.2s |     0 tok |  N/A t/s
+   Error: Error: Gemini REST error: 400 {
+  "error": {
+    "code": 400,
+    "message": "Th
+❌ Run 5/5 | gemini-no-think | gemini-3.1-pro-preview       | bible      | TTFT:    N/Ams | Total:   0.1s |     0 tok |  N/A t/s
+   Error: Error: Gemini REST error: 400 {
+  "error": {
+    "code": 400,
+    "message": "Th
+❌ Run 1/5 | gemini-no-think | gemini-3.1-pro-preview       | random     | TTFT:    N/Ams | Total:   0.1s |     0 tok |  N/A t/s
+   Error: Error: Gemini REST error: 400 {
+  "error": {
+    "code": 400,
+    "message": "Th
+❌ Run 2/5 | gemini-no-think | gemini-3.1-pro-preview       | random     | TTFT:    N/Ams | Total:   0.2s |     0 tok |  N/A t/s
+   Error: Error: Gemini REST error: 400 {
+  "error": {
+    "code": 400,
+    "message": "Th
+❌ Run 3/5 | gemini-no-think | gemini-3.1-pro-preview       | random     | TTFT:    N/Ams | Total:   0.1s |     0 tok |  N/A t/s
+   Error: Error: Gemini REST error: 400 {
+  "error": {
+    "code": 400,
+    "message": "Th
+❌ Run 4/5 | gemini-no-think | gemini-3.1-pro-preview       | random     | TTFT:    N/Ams | Total:   0.2s |     0 tok |  N/A t/s
+   Error: Error: Gemini REST error: 400 {
+  "error": {
+    "code": 400,
+    "message": "Th
+❌ Run 5/5 | gemini-no-think | gemini-3.1-pro-preview       | random     | TTFT:    N/Ams | Total:   0.1s |     0 tok |  N/A t/s
+   Error: Error: Gemini REST error: 400 {
+  "error": {
+    "code": 400,
+    "message": "Th
+❌ Run 1/5 | gemini-no-think | gemini-3.1-pro-preview       | slop_code  | TTFT:    N/Ams | Total:   0.1s |     0 tok |  N/A t/s
+   Error: Error: Gemini REST error: 400 {
+  "error": {
+    "code": 400,
+    "message": "Th
+❌ Run 2/5 | gemini-no-think | gemini-3.1-pro-preview       | slop_code  | TTFT:    N/Ams | Total:   0.1s |     0 tok |  N/A t/s
+   Error: Error: Gemini REST error: 400 {
+  "error": {
+    "code": 400,
+    "message": "Th
+❌ Run 3/5 | gemini-no-think | gemini-3.1-pro-preview       | slop_code  | TTFT:    N/Ams | Total:   0.1s |     0 tok |  N/A t/s
+   Error: Error: Gemini REST error: 400 {
+  "error": {
+    "code": 400,
+    "message": "Th
+❌ Run 4/5 | gemini-no-think | gemini-3.1-pro-preview       | slop_code  | TTFT:    N/Ams | Total:   0.1s |     0 tok |  N/A t/s
+   Error: Error: Gemini REST error: 400 {
+  "error": {
+    "code": 400,
+    "message": "Th
+❌ Run 5/5 | gemini-no-think | gemini-3.1-pro-preview       | slop_code  | TTFT:    N/Ams | Total:   0.1s |     0 tok |  N/A t/s
+   Error: Error: Gemini REST error: 400 {
+  "error": {
+    "code": 400,
+    "message": "Th
+✓ Run 1/5 | gemini-no-think | gemini-3-flash-preview       | bible      | TTFT:   1347ms | Total:  10.2s |  1592 tok |  179 t/s
+✓ Run 2/5 | gemini-no-think | gemini-3-flash-preview       | bible      | TTFT:    834ms | Total:   9.5s |  1428 tok |  164 t/s
+✓ Run 3/5 | gemini-no-think | gemini-3-flash-preview       | bible      | TTFT:   1011ms | Total:  10.0s |  1492 tok |  165 t/s
+✓ Run 4/5 | gemini-no-think | gemini-3-flash-preview       | bible      | TTFT:    857ms | Total:   9.5s |  1474 tok |  170 t/s
+✓ Run 5/5 | gemini-no-think | gemini-3-flash-preview       | bible      | TTFT:   1229ms | Total:  10.3s |  1572 tok |  172 t/s
+✓ Run 1/5 | gemini-no-think | gemini-3-flash-preview       | random     | TTFT:   1018ms | Total:  10.1s |  1461 tok |  162 t/s
+✓ Run 2/5 | gemini-no-think | gemini-3-flash-preview       | random     | TTFT:    895ms | Total:   8.8s |  1257 tok |  160 t/s
+✓ Run 3/5 | gemini-no-think | gemini-3-flash-preview       | random     | TTFT:    843ms | Total:  10.3s |  1508 tok |  159 t/s
+✓ Run 4/5 | gemini-no-think | gemini-3-flash-preview       | random     | TTFT:    825ms | Total:   9.3s |  1389 tok |  163 t/s
+✓ Run 5/5 | gemini-no-think | gemini-3-flash-preview       | random     | TTFT:    815ms | Total:   9.8s |  1430 tok |  159 t/s
+✓ Run 1/5 | gemini-no-think | gemini-3-flash-preview       | slop_code  | TTFT:    798ms | Total:  10.5s |  1621 tok |  168 t/s
+✓ Run 2/5 | gemini-no-think | gemini-3-flash-preview       | slop_code  | TTFT:    724ms | Total:  10.3s |  1603 tok |  167 t/s
+✓ Run 3/5 | gemini-no-think | gemini-3-flash-preview       | slop_code  | TTFT:   1008ms | Total:   9.1s |  1420 tok |  176 t/s
+✓ Run 4/5 | gemini-no-think | gemini-3-flash-preview       | slop_code  | TTFT:    690ms | Total:   9.7s |  1483 tok |  164 t/s
+✓ Run 5/5 | gemini-no-think | gemini-3-flash-preview       | slop_code  | TTFT:    794ms | Total:  10.1s |  1534 tok |  164 t/s
+
+════════════════════════════════════════════════════════════════════════════════════════════════════
+Done! Results appended to results.jsonl
+════════════════════════════════════════════════════════════════════════════════════════════════════

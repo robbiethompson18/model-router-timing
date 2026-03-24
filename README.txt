@@ -87,6 +87,26 @@ OpenAI models. The exception is Gemini Flash via OpenRouter, which was
 dramatically faster (2.6s vs 23.1s TTFT) -- suggesting OpenRouter disables
 Gemini's default thinking mode.
 
+Results: Gemini with Thinking Disabled
+--------------------------------------
+Gemini 3 models have "dynamic thinking" on by default and it can't be fully
+disabled. Flash accepts thinkingLevel=MINIMAL, Pro's minimum is LOW.
+
+Model                              Level     Runs  TTFT avg  tok/s  Total avg
+-----------------------------------------------------------------------------
+gemini-3-flash (default thinking)  default     22    23.1s    169     30.2s
+gemini-3-flash (MINIMAL)           MINIMAL     15     0.9s    166      9.8s
+gemini-3-flash (via OpenRouter)    (OR)        14     2.6s    161     14.0s
+
+With MINIMAL thinking, Flash TTFT drops from 23.1s to 0.9s (25x faster) and
+total time drops from 30.2s to 9.8s. Generation speed stays the same (~166
+t/s), confirming the default thinking was pure overhead for this task. This
+makes Flash competitive with GPT-5.4-mini on total time.
+
+Gemini 3.1 Pro was too unstable during testing to get reliable data with LOW
+thinking -- all attempts timed out at 180s on 10k-char input, though it works
+fine on small prompts (4.7s with 280 thinking tokens on a trivial prompt).
+
 Notes
 -----
 - Gemini tok/s numbers are artificially inflated when thinking is enabled.
